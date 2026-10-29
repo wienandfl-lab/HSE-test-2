@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fristenrechner Referendariat – Heidelberg School of Education</title>
+  <meta name="description" content="Fristenrechner der Heidelberg School of Education: Anmeldung und Abgabe der Masterarbeit für den Start ins Referendariat.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="hse-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+
+<!-- Viewer-Leiste: die einzige Chrome-Flaeche der Seite -->
+<header class="viewerbar">
+  <div class="viewerbar__inner">
+    <a class="logo" href="https://hse-heidelberg.de">
+      <img src="hse-logo.png" width="724" height="276" fetchpriority="high"
+           alt="Heidelberg School of Education" translate="no">
+    </a>
+    <span class="viewerbar__scope">Prüfungsamt · Master of Education</span>
+  </div>
+</header>
+
+<main id="inhalt">
+
+  <!-- Titelzeile: Frage, Quelle, Steuerung -->
+  <div class="titlerow">
+    <div class="titlerow__head">
+      <h1>Fristenrechner Referendariat</h1>
+      <p class="titlerow__source">Fristen des HSE-Prüfungsamts · Bearbeitungszeit 17 Wochen</p>
+    </div>
+    <div class="titlerow__controls">
+      <label class="ctl">
+        <span class="ctl__label">Weg</span>
+        <select id="option" name="option" autocomplete="off">
+          <option value="regulaer">Regulär ins Ref</option>
+          <option value="gasthoerer">Als Gasthörer:in</option>
+        </select>
+      </label>
+      <label class="ctl">
+        <span class="ctl__label">Ref-Start</span>
+        <select id="ref-start" name="ref-start" autocomplete="off"></select>
+      </label>
+    </div>
+  </div>
+
+  <!-- Option 1: regulär -->
+  <section id="bereich-regulaer">
+
+    <p class="finding">
+      Die Abgabe ist der Engpass: Wer die Masterarbeit nach dem
+      <strong id="finding-datum">1. Oktober</strong> abgibt, schafft den Januar-Start nicht mehr.
+    </p>
+
+    <h2 class="blockhead">
+      Deine Fristen für einen regulären Start im Januar <span id="ref-jahr"></span>
+    </h2>
+
+    <ul class="stats">
+      <li class="stat">
+        <span class="stat__label">Anmeldung Masterarbeit</span>
+        <strong class="stat__value num" id="frist-anmeldung"></strong>
+        <span class="stat__note">spätester Tag, an dem Du anmelden kannst</span>
+      </li>
+      <li class="stat">
+        <span class="stat__label">Abgabe Masterarbeit</span>
+        <strong class="stat__value num" id="frist-abgabe"></strong>
+        <span class="stat__note">17 Wochen nach der Anmeldung</span>
+      </li>
+      <li class="stat">
+        <span class="stat__label">Unterlagen beim Regierungspräsidium</span>
+        <strong class="stat__value num" id="frist-rp"></strong>
+        <span class="stat__note">Abschlussdokumente müssen vorliegen</span>
+      </li>
+    </ul>
+
+    <div class="row">
+      <!-- Die eine Grafik: der Weg von der Anmeldung bis zum Ref-Start -->
+      <section class="panel" aria-labelledby="zeitstrahl-titel">
+        <div class="panel__head">
+          <h2 id="zeitstrahl-titel">Der Weg zum Ref-Start</h2>
+          <div class="legend" id="zeitstrahl-legende"></div>
+        </div>
+        <div id="zeitstrahl" class="zeitstrahl"></div>
+      </section>
+
+      <!-- Die eine Sache, die man hier tut -->
+      <section class="panel panel--rechner" aria-labelledby="rechner-titel">
+        <div class="panel__head">
+          <h2 id="rechner-titel">Rechne Deine Frist aus</h2>
+        </div>
+
+        <div class="panel--rechner__body">
+          <div class="panel--rechner__eingaben">
+            <fieldset class="rechner__art">
+              <legend>Was gibst Du ein?</legend>
+              <div class="segmented">
+                <label><input type="radio" name="art" value="anmeldung" checked><span>Anmeldedatum</span></label>
+                <label><input type="radio" name="art" value="abgabe"><span>Abgabedatum</span></label>
+              </div>
+            </fieldset>
+
+            <div class="rechner__datum">
+              <label for="datum" id="datum-label">Wann meldest Du Deine Masterarbeit an?</label>
+              <input type="date" id="datum" name="datum" autocomplete="off" spellcheck="false"
+                     min="2000-01-01" max="2100-12-31">
+            </div>
+          </div>
+
+          <div class="panel--rechner__ausgabe">
+            <div id="ergebnis" aria-live="polite" hidden></div>
+            <p class="rechner__leer" id="rechner-leer">Sobald Du ein Datum einträgst, steht hier, ob es für den Januar-Start reicht.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- Option 2: Gasthörer -->
+  <section id="bereich-gasthoerer" hidden>
+    <section class="panel">
+      <div class="panel__head"><h2>Als Gasthörer:in ins Ref starten</h2></div>
+      <p class="leerstelle">Die Informationen zu dieser Option kommen noch. Bis dahin hilft das
+        <a href="https://hse-heidelberg.de/studium/hse-pruefungsamt-universitaet">HSE-Prüfungsamt</a> weiter.</p>
+    </section>
+  </section>
+
+  <footer>
+    <p>Alle Angaben ohne Gewähr. Verbindlich sind die Fristen in Deinem Zulassungsschreiben und die Auskunft des
+      <a href="https://hse-heidelberg.de/studium/hse-pruefungsamt-universitaet">HSE-Prüfungsamts</a>.</p>
+  </footer>
+</main>
+
+<script src="script.js"></script>
+<script src="zeitstrahl.js"></script>
+</body>
+</html>

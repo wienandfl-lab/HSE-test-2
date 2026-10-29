@@ -1,0 +1,464 @@
+/* ===========================================================================
+   Fristenrechner Referendariat – Heidelberg School of Education
+
+   Stil: "Achromatic ledger" (tasteskill-Sheet, seed 721130851).
+   Die Chrome ist tintenfarben, ohne Markenfarbe. Die eine Datenfarbe liegt
+   auf dem Hauptelement (dem Zeitstrahl); sonst trägt nur die Ampel Farbe.
+   Flächen werden durch einen Tonwertschritt oder eine 1px-Linie getrennt,
+   nie durch Schatten.
+   =========================================================================== */
+
+:root {
+  /* Grund und Flächen */
+  --ground:   #f2f4f7;   /* blaugrauer Grund, aus dem Logo abgeleitet */
+  --surface:  #ffffff;
+  --raised:   #f8f9fb;
+  --border:   #e5e7eb;
+  --rule:     #f0f1f4;
+  --control:  #d1d5db;
+
+  /* Text in drei Stufen, alle ≥ 4.5:1 */
+  --text:   #14181f;
+  --muted:  #5a6170;
+  --faint:  #5f6775;   /* 5.2:1 auf dem Grund, 5.7:1 auf Weiss */
+
+  /* Die eine Datenfarbe: HSE-Blau statt #1d5fbf */
+  --chart:  #1f3f6e;
+  --chart-track: #e3e7ee;
+
+  /* Ampel: nur im Ergebnis und auf dem Zeitstrahl-Marker */
+  --pos: #1f6b44;  --pos-bg: #e6f3eb;  --pos-ink: #0d2d1c;
+  --warn:#8d6200;  --warn-bg:#fdf4e3;  --warn-ink:#4a3400;
+  --neg: #a5202c;  --neg-bg: #fbeceb;  --neg-ink: #58121a;
+
+  /* Geometrie: das enge Paar */
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --gap: 12px;
+  --card-pad: 20px;
+
+  --control-height: 34px;
+  --font: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --fs-title: 24px;
+  --fs-section: 16px;
+  --fs-stat: 20px;
+  --fs-body: 14px;
+  --fs-small: 13px;    /* Beschriftungen lesen bei 13-14px */
+  --fs-meta: 12px;     /* nur Sublines und Achsen */
+}
+
+* { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  color-scheme: light;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(31, 63, 110, .14);
+}
+@media (pointer: fine) { html { overscroll-behavior: none; } }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--ground);
+  color: var(--text);
+  font: 400 var(--fs-body)/1.5 var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+.num { font-variant-numeric: tabular-nums; }
+
+/* Sprunglink */
+.skip-link {
+  position: absolute; left: 50%; top: 0; z-index: 100;
+  transform: translate(-50%, -120%);
+  background: var(--text); color: #fff;
+  padding: 10px 18px; border-radius: 0 0 var(--radius-control) var(--radius-control);
+  font-weight: 500; text-decoration: none;
+  transition: transform .15s ease-out;
+}
+.skip-link:focus-visible {
+  transform: translate(-50%, 0);
+  outline: none; box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--chart); /* taste-skill-ignore: Fokusring, kein Schatten */
+}
+
+/* ------------------------------------------------------------- Viewer-Leiste */
+
+.viewerbar {
+  height: 56px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.viewerbar__inner {
+  height: 100%;
+  max-width: 1088px;
+  margin: 0 auto;
+  padding: 0 max(24px, env(safe-area-inset-right)) 0 max(24px, env(safe-area-inset-left));
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo { display: inline-flex; border-radius: 4px; }
+.logo img { display: block; height: 30px; width: auto; }
+.logo:focus-visible { outline: none; box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--chart); } /* taste-skill-ignore: Fokusring */
+
+.viewerbar__scope {
+  font-size: var(--fs-small);
+  color: var(--faint);
+  padding-left: 16px;
+  border-left: 1px solid var(--border);
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+/* -------------------------------------------------------------------- Spalte */
+
+main {
+  max-width: 1088px;
+  margin: 0 auto;
+  padding: 28px max(24px, env(safe-area-inset-right)) max(64px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+}
+
+/* ----------------------------------------------------------------- Titelzeile */
+
+.titlerow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+h1 {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+}
+
+.titlerow__source {
+  margin: 4px 0 0;
+  font-size: var(--fs-meta);
+  color: var(--faint);
+}
+
+.titlerow__controls { display: flex; gap: var(--gap); }
+
+.ctl { display: flex; flex-direction: column; gap: 5px; }
+.ctl__label { font-size: var(--fs-small); color: var(--faint); }
+
+select {
+  height: var(--control-height);
+  min-width: 170px;
+  font: 400 var(--fs-body)/1 var(--font);
+  color: var(--text);
+  background-color: var(--surface);
+  border: 1px solid var(--control);
+  border-radius: var(--radius-control);
+  padding: 0 34px 0 11px;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%235a6170' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  cursor: pointer;
+  transition: border-color .12s;
+}
+select:hover { border-color: #adb5c0; }
+select:focus-visible { outline: none; border-color: var(--chart); box-shadow: 0 0 0 3px rgba(31,63,110,.18); } /* taste-skill-ignore: Fokusring */
+
+/* -------------------------------------------------------------------- Befund */
+
+.finding {
+  margin: 0 0 20px;
+  padding: 11px 14px;
+  background: var(--raised);
+  border-left: 2px solid var(--chart);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  color: var(--muted);
+  font-size: var(--fs-body);
+}
+.finding strong { color: var(--text); font-weight: 500; }
+
+/* ------------------------------------------------------------- Blocküberschrift */
+
+.blockhead,
+.panel__head h2 {
+  margin: 0;
+  font-size: var(--fs-section);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -.01em;
+  text-wrap: balance;
+}
+.blockhead { margin-bottom: 10px; }
+
+/* ------------------------------------------------------------- Kennzahlenzeile */
+/* Ein Behälter, durch 1px-Linien geteilt – keine einzelnen Kacheln. */
+
+.stats {
+  list-style: none;
+  margin: 0 0 var(--gap);
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.stat {
+  padding: 15px var(--card-pad) 16px;
+  border-left: 1px solid var(--rule);
+  min-width: 0;
+}
+.stat:first-child { border-left: 0; }
+
+.stat__label { display: block; font-size: var(--fs-small); color: var(--faint); }
+.stat__value {
+  display: block;
+  margin-top: 5px;
+  font-size: var(--fs-stat);
+  font-weight: 500;
+  letter-spacing: -.01em;
+  overflow-wrap: break-word;
+}
+.stat__note { display: block; margin-top: 3px; font-size: var(--fs-meta); color: var(--faint); }
+
+/* -------------------------------------------------------------------- Paneele */
+
+/* Der Zeitstrahl ist das Hauptelement und bekommt die volle Spalte;
+   der Rechner steht darunter, ebenfalls voll. So teilt sich keine Zeile
+   zwei Karten unterschiedlicher Hoehe (ragged row). */
+.row { display: grid; gap: var(--gap); }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--card-pad);
+}
+
+.panel__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+/* Legende: jedes Plättchen ist die Markierung selbst, verkleinert. */
+.legend { display: flex; gap: 12px; flex-wrap: wrap; }
+.legend span {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: var(--fs-meta); color: var(--faint);
+}
+.legend i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+
+.zeitstrahl { margin: 4px -4px 0; }
+.zeitstrahl svg { display: block; width: 100%; height: auto; }
+
+/* -------------------------------------------------------------------- Rechner */
+
+/* Im Rechner stehen Eingaben und Ergebnis nebeneinander, damit das Panel
+   nicht zu einer schmalen Saeule wird. */
+.panel--rechner__body {
+  display: grid;
+  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.panel--rechner__eingaben { min-width: 0; }
+.panel--rechner__ausgabe  { min-width: 0; }
+
+@media (max-width: 760px) {
+  .panel--rechner__body { grid-template-columns: 1fr; gap: 16px; }
+}
+
+fieldset { border: 0; margin: 0 0 16px; padding: 0; }
+legend, .rechner__datum label {
+  padding: 0;
+  font-size: var(--fs-small);
+  color: var(--faint);
+  margin-bottom: 7px;
+  display: block;
+}
+
+/* Segmentierte Auswahl, so breit wie ihre Optionen. */
+.segmented {
+  display: inline-flex;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 3px;
+  gap: 3px;
+}
+.segmented label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 4px;
+  font-size: var(--fs-body);
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color .12s, color .12s;
+}
+.segmented input {
+  position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer;
+}
+.segmented label:has(input:checked) {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 500;
+  box-shadow: inset 0 0 0 1px var(--border); /* taste-skill-ignore: 1px-Innenkante, kein Schlagschatten */
+}
+.segmented label:has(input:focus-visible) {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--chart); /* taste-skill-ignore: Fokusring */
+}
+
+.rechner__datum { margin-bottom: 0; }
+
+input[type="date"] {
+  width: 100%;
+  height: var(--control-height);
+  font: 400 var(--fs-body)/1 var(--font);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  background-color: var(--surface);
+  border: 1px solid var(--control);
+  border-radius: var(--radius-control);
+  padding: 0 11px;
+  transition: border-color .12s;
+}
+input[type="date"]:hover { border-color: #adb5c0; }
+input[type="date"]:focus-visible {
+  outline: none; border-color: var(--chart); box-shadow: 0 0 0 3px rgba(31,63,110,.18); /* taste-skill-ignore: Fokusring */
+}
+input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .6; }
+input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
+
+/* Leerzustand: der Rahmen bleibt, ein Satz erklärt ihn. */
+.rechner__leer {
+  margin: 0;
+  min-height: 128px;
+  display: flex;
+  align-items: center;
+  padding: 16px 18px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-control);
+  color: var(--faint);
+}
+.rechner__leer p { margin: 0; }
+
+/* ------------------------------------------------------------------- Ergebnis */
+/* script.js setzt className auf "gruen"/"gelb"/"rot" und überschreibt dabei
+   alle Klassen. Deshalb ausschließlich über die ID stylen. */
+
+#ergebnis {
+  padding: 14px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-size: var(--fs-body);
+}
+#ergebnis p { margin: 0 0 8px; overflow-wrap: break-word; }
+#ergebnis p:last-child { margin-bottom: 0; }
+
+#ergebnis .ampel {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-weight: 500;
+  font-size: var(--fs-small);
+  margin-bottom: 9px;
+}
+#ergebnis .ampel::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%;
+  background: currentColor; flex: none;
+}
+
+#ergebnis.gruen { background: var(--pos-bg);  border-color: #c6e2d1; color: var(--pos-ink); }
+#ergebnis.gelb  { background: var(--warn-bg); border-color: #ecd9ac; color: var(--warn-ink); }
+#ergebnis.rot   { background: var(--neg-bg);  border-color: #efc4c2; color: var(--neg-ink); }
+
+#ergebnis.gruen .ampel { color: var(--pos); }
+#ergebnis.gelb  .ampel { color: var(--warn); }
+#ergebnis.rot   .ampel { color: var(--neg); }
+
+#ergebnis strong { font-weight: 500; }
+
+/* ------------------------------------------------------------------- Diverses */
+
+.leerstelle {
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-control);
+  color: var(--faint);
+}
+
+footer {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  color: var(--faint);
+  font-size: var(--fs-small);
+}
+footer p { margin: 0; max-width: 72ch; }
+
+a { color: var(--chart); text-underline-offset: 2px; }
+a:hover { color: var(--text); }
+a:focus-visible { outline: none; box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--chart); border-radius: 3px; } /* taste-skill-ignore: Fokusring */
+
+/* ------------------------------------------------------------------ Responsiv */
+
+@media (max-width: 900px) {
+  .row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 680px) {
+  main { padding: 20px 16px 48px; }
+  .viewerbar__inner { padding: 0 16px; }
+  .viewerbar__scope { display: none; }
+  .titlerow { align-items: stretch; }
+  .titlerow__controls { width: 100%; }
+  .ctl { flex: 1 1 0; min-width: 0; }
+  select { min-width: 0; width: 100%; }
+  .stats { grid-template-columns: 1fr; }
+  .stat { border-left: 0; border-top: 1px solid var(--rule); }
+  .stat:first-child { border-top: 0; }
+  .segmented { display: flex; }
+  .segmented label { flex: 1 1 0; }
+}
+
+/* -------------------------------------------------------- Bedienungshilfen */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root { --border: #9aa5b4; --control: #78828f; --faint: #434b59; --muted: #434b59; }
+}
+
+@media print {
+  body { background: #fff; }
+  .viewerbar { border-bottom: 1px solid var(--text); }
+  .panel, .stats { break-inside: avoid; }
+  .titlerow__controls, .skip-link { display: none; }
+}
