@@ -5,17 +5,17 @@
 
 :root {
   /* Flächen */
-  --ground:   #eef1f6;
+  --ground:   #f4f4f4;   /* IBM Gray 10 */
   --surface:  #ffffff;
-  --raised:   #f6f8fa;
-  --border:   #e2e5ea;
-  --rule:     #eceef2;
-  --control:  #cdd1d8;
+  --raised:   #f4f4f4;
+  --border:   #e0e0e0;   /* IBM Gray 20 */
+  --rule:     #e8e8e8;
+  --control:  #c6c6c6;   /* IBM Gray 30 */
 
   /* Text – alle ≥ 4.5:1 auf --ground und --surface */
   --text:   #14181f;
-  --muted:  #3f4654;   /* 7.7:1 auf surface */
-  --faint:  #5f6775;   /* 5.2:1 auf ground  */
+  --muted:  #393939;   /* IBM Gray 80, 10.7:1 */
+  --faint:  #525252;   /* IBM Gray 70, 7.0:1 */
 
   /* Datenfarbe: HSE-Blau */
   --chart:       #1f3f6e;
@@ -38,6 +38,7 @@
 
   /* Typografie – eine Stufe größer */
   --font: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", "Geist Mono", ui-monospace, monospace;
   --fs-title:   28px;
   --fs-section: 17px;
   --fs-stat:    26px;
@@ -255,8 +256,9 @@ select:focus-visible {
   display: block;
   margin-top: 6px;
   font-size: var(--fs-stat);
-  font-weight: 600;
-  letter-spacing: -.02em;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  letter-spacing: -.01em;
   overflow-wrap: break-word;
   transition: opacity var(--dur-base) var(--ease-out);
 }
@@ -386,9 +388,10 @@ input[type="date"] {
   font: 400 var(--fs-body)/1 var(--font);
   font-variant-numeric: tabular-nums;
   color: var(--text);
-  background-color: var(--surface);
-  border: 1px solid var(--control);
-  border-radius: var(--radius-control);
+  background-color: var(--raised);
+  border: none;
+  border-bottom: 2px solid var(--control);
+  border-radius: 0;
   padding: 0 11px;
   touch-action: manipulation;
   transition: border-color var(--dur-fast) ease;
@@ -397,11 +400,11 @@ input[type="date"] {
   input[type="date"]:hover { border-color: #adb5c0; }
   input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
 }
-input[type="date"]:active { transform: scale(0.995); }
+/* input active: kein scale bei bottom-border-Stil */
 input[type="date"]:focus-visible {
-  outline: 2px solid transparent;
-  border-color: var(--chart);
-  box-shadow: 0 0 0 3px rgba(31,63,110,.18); /* taste-skill-ignore: Fokusring */
+  outline: none;
+  border-bottom-color: var(--chart);
+  box-shadow: none; /* taste-skill-ignore: IBM-Stil, kein Schlagschatten */
 }
 @media (forced-colors: active) {
   input[type="date"]:focus-visible { outline-color: Highlight; box-shadow: none; } /* taste-skill-ignore: forced-colors reset, kein Schlagschatten */

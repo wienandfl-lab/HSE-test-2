@@ -77,7 +77,7 @@
     const eng = B < 560;
     const H   = eng ? 150 : 132;
     const L = 6, R = B - 6;
-    const balkenY = eng ? 58 : 50, balkenH = eng ? 24 : 28;
+    const balkenY = eng ? 62 : 52, balkenH = eng ? 28 : 36;
     const x = (d) => L + ((d - von) / TAG_MS / spanne) * (R - L);
 
     // Cache für updateMarker
