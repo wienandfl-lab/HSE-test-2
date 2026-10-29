@@ -1,60 +1,67 @@
 /* ===========================================================================
    Fristenrechner Referendariat – Heidelberg School of Education
-
-   Stil: "Achromatic ledger" (tasteskill-Sheet, seed 721130851).
-   Die Chrome ist tintenfarben, ohne Markenfarbe. Die eine Datenfarbe liegt
-   auf dem Hauptelement (dem Zeitstrahl); sonst trägt nur die Ampel Farbe.
-   Flächen werden durch einen Tonwertschritt oder eine 1px-Linie getrennt,
-   nie durch Schatten.
+   Achromatic ledger + Motion layer (audit 2026-10-29)
    =========================================================================== */
 
 :root {
-  /* Grund und Flächen */
-  --ground:   #f2f4f7;   /* blaugrauer Grund, aus dem Logo abgeleitet */
+  /* Flächen */
+  --ground:   #eef1f6;
   --surface:  #ffffff;
-  --raised:   #f8f9fb;
-  --border:   #e5e7eb;
-  --rule:     #f0f1f4;
-  --control:  #d1d5db;
+  --raised:   #f6f8fa;
+  --border:   #e2e5ea;
+  --rule:     #eceef2;
+  --control:  #cdd1d8;
 
-  /* Text in drei Stufen, alle ≥ 4.5:1 */
+  /* Text – alle ≥ 4.5:1 auf --ground und --surface */
   --text:   #14181f;
-  --muted:  #5a6170;
-  --faint:  #5f6775;   /* 5.2:1 auf dem Grund, 5.7:1 auf Weiss */
+  --muted:  #3f4654;   /* 7.7:1 auf surface */
+  --faint:  #5f6775;   /* 5.2:1 auf ground  */
 
-  /* Die eine Datenfarbe: HSE-Blau statt #1d5fbf */
-  --chart:  #1f3f6e;
-  --chart-track: #e3e7ee;
+  /* Datenfarbe: HSE-Blau */
+  --chart:       #1f3f6e;
+  --chart-track: #dce3ee;
 
-  /* Ampel: nur im Ergebnis und auf dem Zeitstrahl-Marker */
-  --pos: #1f6b44;  --pos-bg: #e6f3eb;  --pos-ink: #0d2d1c;
-  --warn:#8d6200;  --warn-bg:#fdf4e3;  --warn-ink:#4a3400;
-  --neg: #a5202c;  --neg-bg: #fbeceb;  --neg-ink: #58121a;
+  /* Brand-Akzent: HSE-Gelb – nur für den finding-Rand */
+  --brand-accent: #c8940a;   /* dunkler als #f5b800 für Kontrast */
 
-  /* Geometrie: das enge Paar */
-  --radius-card: 8px;
+  /* Ampel */
+  --pos:      #1f6b44; --pos-bg:  #e6f3eb; --pos-ink:  #0d2d1c;
+  --warn:     #8d6200; --warn-bg: #fdf4e3; --warn-ink: #4a3400;
+  --neg:      #b3261e; --neg-bg:  #fbeceb; --neg-ink:  #58121a;
+
+  /* Geometrie */
+  --radius-card:    8px;
   --radius-control: 6px;
-  --gap: 12px;
-  --card-pad: 20px;
+  --gap:       12px;
+  --card-pad:  20px;
+  --control-height: 38px;   /* ≥ 36px; coarse bringt es auf 44px */
 
-  --control-height: 34px;
+  /* Typografie – eine Stufe größer */
   --font: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --fs-title:   28px;
+  --fs-section: 17px;
+  --fs-stat:    26px;
+  --fs-body:    15px;
+  --fs-small:   14px;
+  --fs-meta:    12px;
 
-  --fs-title: 24px;
-  --fs-section: 16px;
-  --fs-stat: 20px;
-  --fs-body: 14px;
-  --fs-small: 13px;    /* Beschriftungen lesen bei 13-14px */
-  --fs-meta: 12px;     /* nur Sublines und Achsen */
+  /* Motion-Tokens */
+  --ease-out:   cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-inout: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-fast:  120ms;
+  --dur-base:  180ms;
+  --dur-move:  220ms;
 }
+
+/* ----------------------------------------------------------------- Reset */
 
 * { box-sizing: border-box; }
 
 html {
   -webkit-text-size-adjust: 100%;
   color-scheme: light;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: rgba(31, 63, 110, .14);
+  /* touch-action nur auf Eingaben, nie auf html (würde Zoom killen) */
+  -webkit-tap-highlight-color: rgba(31, 63, 110, .12);
 }
 @media (pointer: fine) { html { overscroll-behavior: none; } }
 
@@ -69,25 +76,29 @@ body {
 
 .num { font-variant-numeric: tabular-nums; }
 
-/* Sprunglink */
+/* ---------------------------------------------------------------- Sprunglink */
+
 .skip-link {
   position: absolute; left: 50%; top: 0; z-index: 100;
   transform: translate(-50%, -120%);
   background: var(--text); color: #fff;
-  padding: 10px 18px; border-radius: 0 0 var(--radius-control) var(--radius-control);
+  padding: 10px 18px;
+  border-radius: 0 0 var(--radius-control) var(--radius-control);
   font-weight: 500; text-decoration: none;
-  transition: transform .15s ease-out;
+  transition: transform var(--dur-base) var(--ease-out);
 }
 .skip-link:focus-visible {
   transform: translate(-50%, 0);
-  outline: none; box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--chart); /* taste-skill-ignore: Fokusring, kein Schatten */
+  outline: 2px solid transparent;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--chart); /* taste-skill-ignore: Fokusring */
 }
 
-/* ------------------------------------------------------------- Viewer-Leiste */
+/* ------------------------------------------------------------ Viewer-Leiste */
 
 .viewerbar {
   height: 56px;
   background: var(--surface);
+  border-top: 3px solid var(--chart);   /* einzige Brand-Geste */
   border-bottom: 1px solid var(--border);
 }
 
@@ -102,11 +113,14 @@ body {
 }
 
 .logo { display: inline-flex; border-radius: 4px; }
-.logo img { display: block; height: 30px; width: auto; }
-.logo:focus-visible { outline: none; box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--chart); } /* taste-skill-ignore: Fokusring */
+.logo img { display: block; height: 28px; width: auto; }
+.logo:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--chart); /* taste-skill-ignore: Fokusring */
+}
 
 .viewerbar__scope {
-  font-size: var(--fs-small);
+  font-size: var(--fs-meta);
   color: var(--faint);
   padding-left: 16px;
   border-left: 1px solid var(--border);
@@ -115,15 +129,17 @@ body {
   align-items: center;
 }
 
-/* -------------------------------------------------------------------- Spalte */
+/* -------------------------------------------------------------------Spalte */
 
 main {
   max-width: 1088px;
   margin: 0 auto;
-  padding: 28px max(24px, env(safe-area-inset-right)) max(64px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+  padding: 28px max(24px, env(safe-area-inset-right))
+           max(64px, env(safe-area-inset-bottom))
+           max(24px, env(safe-area-inset-left));
 }
 
-/* ----------------------------------------------------------------- Titelzeile */
+/* --------------------------------------------------------------- Titelzeile */
 
 .titlerow {
   display: flex;
@@ -138,21 +154,21 @@ h1 {
   margin: 0;
   font-size: var(--fs-title);
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -.02em;
+  line-height: 1.15;
+  letter-spacing: -.025em;
   text-wrap: balance;
 }
 
 .titlerow__source {
-  margin: 4px 0 0;
+  margin: 5px 0 0;
   font-size: var(--fs-meta);
   color: var(--faint);
 }
 
-.titlerow__controls { display: flex; gap: var(--gap); }
+.titlerow__controls { display: flex; gap: var(--gap); align-items: flex-end; }
 
 .ctl { display: flex; flex-direction: column; gap: 5px; }
-.ctl__label { font-size: var(--fs-small); color: var(--faint); }
+.ctl__label { font-size: var(--fs-meta); color: var(--faint); }
 
 select {
   height: var(--control-height);
@@ -164,29 +180,43 @@ select {
   border-radius: var(--radius-control);
   padding: 0 34px 0 11px;
   appearance: none; -webkit-appearance: none;
+  touch-action: manipulation;
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%235a6170' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 11px center;
   cursor: pointer;
-  transition: border-color .12s;
+  transition: border-color var(--dur-fast) ease;
 }
-select:hover { border-color: #adb5c0; }
-select:focus-visible { outline: none; border-color: var(--chart); box-shadow: 0 0 0 3px rgba(31,63,110,.18); } /* taste-skill-ignore: Fokusring */
+@media (hover: hover) and (pointer: fine) {
+  select:hover { border-color: #adb5c0; }
+}
+select:active { transform: scale(0.99); transition: transform var(--dur-fast) var(--ease-out); }
+select:focus-visible {
+  outline: 2px solid transparent;
+  border-color: var(--chart);
+  box-shadow: 0 0 0 3px rgba(31,63,110,.18); /* taste-skill-ignore: Fokusring */
+}
+@media (forced-colors: active) {
+  select:focus-visible { outline-color: Highlight; box-shadow: none; } /* taste-skill-ignore: forced-colors reset, kein Schlagschatten */
+}
+@media (pointer: coarse) {
+  :root { --control-height: 44px; }
+}
 
-/* -------------------------------------------------------------------- Befund */
+/* ------------------------------------------------------------------- Befund */
 
 .finding {
   margin: 0 0 20px;
   padding: 11px 14px;
   background: var(--raised);
-  border-left: 2px solid var(--chart);
+  border-left: 3px solid var(--brand-accent);   /* HSE-Gelb als einziger Akzent */
   border-radius: 0 var(--radius-control) var(--radius-control) 0;
   color: var(--muted);
   font-size: var(--fs-body);
 }
 .finding strong { color: var(--text); font-weight: 500; }
 
-/* ------------------------------------------------------------- Blocküberschrift */
+/* --------------------------------------------------------- Blocküberschrift */
 
 .blockhead,
 .panel__head h2 {
@@ -199,8 +229,7 @@ select:focus-visible { outline: none; border-color: var(--chart); box-shadow: 0 
 }
 .blockhead { margin-bottom: 10px; }
 
-/* ------------------------------------------------------------- Kennzahlenzeile */
-/* Ein Behälter, durch 1px-Linien geteilt – keine einzelnen Kacheln. */
+/* --------------------------------------------------------- Kennzahlenzeile */
 
 .stats {
   list-style: none;
@@ -215,28 +244,26 @@ select:focus-visible { outline: none; border-color: var(--chart); box-shadow: 0 
 }
 
 .stat {
-  padding: 15px var(--card-pad) 16px;
+  padding: 16px var(--card-pad) 18px;
   border-left: 1px solid var(--rule);
   min-width: 0;
 }
 .stat:first-child { border-left: 0; }
 
-.stat__label { display: block; font-size: var(--fs-small); color: var(--faint); }
+.stat__label { display: block; font-size: var(--fs-meta); color: var(--faint); }
 .stat__value {
   display: block;
-  margin-top: 5px;
+  margin-top: 6px;
   font-size: var(--fs-stat);
-  font-weight: 500;
-  letter-spacing: -.01em;
+  font-weight: 600;
+  letter-spacing: -.02em;
   overflow-wrap: break-word;
+  transition: opacity var(--dur-base) var(--ease-out);
 }
-.stat__note { display: block; margin-top: 3px; font-size: var(--fs-meta); color: var(--faint); }
+.stat__note { display: block; margin-top: 4px; font-size: var(--fs-meta); color: var(--faint); }
 
-/* -------------------------------------------------------------------- Paneele */
+/* ----------------------------------------------------------------- Paneele */
 
-/* Der Zeitstrahl ist das Hauptelement und bekommt die volle Spalte;
-   der Rechner steht darunter, ebenfalls voll. So teilt sich keine Zeile
-   zwei Karten unterschiedlicher Hoehe (ragged row). */
 .row { display: grid; gap: var(--gap); }
 
 .panel {
@@ -255,21 +282,35 @@ select:focus-visible { outline: none; border-color: var(--chart); box-shadow: 0 
   margin-bottom: 14px;
 }
 
-/* Legende: jedes Plättchen ist die Markierung selbst, verkleinert. */
 .legend { display: flex; gap: 12px; flex-wrap: wrap; }
 .legend span {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: var(--fs-meta); color: var(--faint);
 }
-.legend i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; flex: none; }
 
 .zeitstrahl { margin: 4px -4px 0; }
 .zeitstrahl svg { display: block; width: 100%; height: auto; }
 
-/* -------------------------------------------------------------------- Rechner */
+/* Zeitstrahl-Text über CSS statt JS-Presentationsattribute */
+.zeitstrahl text { font-family: var(--font); }
+.zeitstrahl .zs-datum { font-weight: 500; font-variant-numeric: tabular-nums; }
+.zeitstrahl .zs-rolle { fill: var(--faint); }
+.zeitstrahl .zs-label { fill: #fff; font-weight: 500; }
+.zeitstrahl .zs-marke-linie { stroke: var(--pos); stroke-width: 2; }
+.zeitstrahl .zs-marke-punkt { fill: var(--pos); }
+.zeitstrahl .zs-marke-text { font-weight: 500; font-variant-numeric: tabular-nums; }
 
-/* Im Rechner stehen Eingaben und Ergebnis nebeneinander, damit das Panel
-   nicht zu einer schmalen Saeule wird. */
+/* Animierter Eingabe-Marker */
+.zeitstrahl .eingabe-marke {
+  transition:
+    transform var(--dur-move) var(--ease-inout),
+    fill var(--dur-base) ease,
+    stroke var(--dur-base) ease;
+}
+
+/* ----------------------------------------------------------------- Rechner */
+
 .panel--rechner__body {
   display: grid;
   grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
@@ -277,11 +318,11 @@ select:focus-visible { outline: none; border-color: var(--chart); box-shadow: 0 
   align-items: start;
 }
 .panel--rechner__eingaben { min-width: 0; }
-.panel--rechner__ausgabe  { min-width: 0; }
-
-@media (max-width: 760px) {
-  .panel--rechner__body { grid-template-columns: 1fr; gap: 16px; }
+.panel--rechner__ausgabe  {
+  min-width: 0;
+  display: grid;
 }
+.panel--rechner__ausgabe > * { grid-area: 1/1; }
 
 fieldset { border: 0; margin: 0 0 16px; padding: 0; }
 legend, .rechner__datum label {
@@ -292,8 +333,9 @@ legend, .rechner__datum label {
   display: block;
 }
 
-/* Segmentierte Auswahl, so breit wie ihre Optionen. */
+/* Segmentierte Auswahl */
 .segmented {
+  position: relative;
   display: inline-flex;
   background: var(--raised);
   border: 1px solid var(--border);
@@ -306,14 +348,15 @@ legend, .rechner__datum label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 28px;
+  height: 30px;
   padding: 0 14px;
   border-radius: 4px;
   font-size: var(--fs-body);
   color: var(--muted);
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color .12s, color .12s;
+  touch-action: manipulation;
+  transition: color var(--dur-fast) ease;
 }
 .segmented input {
   position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer;
@@ -322,11 +365,17 @@ legend, .rechner__datum label {
   background: var(--surface);
   color: var(--text);
   font-weight: 500;
-  box-shadow: inset 0 0 0 1px var(--border); /* taste-skill-ignore: 1px-Innenkante, kein Schlagschatten */
+  box-shadow: inset 0 0 0 1px var(--border); /* taste-skill-ignore: 1px-Innenkante */
 }
 .segmented label:has(input:focus-visible) {
-  outline: none;
+  outline: 2px solid transparent;
   box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--chart); /* taste-skill-ignore: Fokusring */
+}
+@media (forced-colors: active) {
+  .segmented label:has(input:focus-visible) { outline-color: Highlight; box-shadow: none; } /* taste-skill-ignore: forced-colors reset, kein Schlagschatten */
+}
+@media (pointer: coarse) {
+  .segmented label { height: 40px; }
 }
 
 .rechner__datum { margin-bottom: 0; }
@@ -341,16 +390,25 @@ input[type="date"] {
   border: 1px solid var(--control);
   border-radius: var(--radius-control);
   padding: 0 11px;
-  transition: border-color .12s;
+  touch-action: manipulation;
+  transition: border-color var(--dur-fast) ease;
 }
-input[type="date"]:hover { border-color: #adb5c0; }
+@media (hover: hover) and (pointer: fine) {
+  input[type="date"]:hover { border-color: #adb5c0; }
+  input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
+}
+input[type="date"]:active { transform: scale(0.995); }
 input[type="date"]:focus-visible {
-  outline: none; border-color: var(--chart); box-shadow: 0 0 0 3px rgba(31,63,110,.18); /* taste-skill-ignore: Fokusring */
+  outline: 2px solid transparent;
+  border-color: var(--chart);
+  box-shadow: 0 0 0 3px rgba(31,63,110,.18); /* taste-skill-ignore: Fokusring */
+}
+@media (forced-colors: active) {
+  input[type="date"]:focus-visible { outline-color: Highlight; box-shadow: none; } /* taste-skill-ignore: forced-colors reset, kein Schlagschatten */
 }
 input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .6; }
-input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
 
-/* Leerzustand: der Rahmen bleibt, ein Satz erklärt ihn. */
+/* Leerzustand: überlagert #ergebnis per grid, blendet aus wenn Ergebnis kommt */
 .rechner__leer {
   margin: 0;
   min-height: 128px;
@@ -360,19 +418,47 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
   border: 1px dashed var(--border);
   border-radius: var(--radius-control);
   color: var(--faint);
+  font-size: var(--fs-small);
+  transition: opacity var(--dur-fast) ease;
 }
-.rechner__leer p { margin: 0; }
+.rechner__leer[hidden] {
+  display: flex;   /* override hidden's display:none so transition runs */
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
 
-/* ------------------------------------------------------------------- Ergebnis */
-/* script.js setzt className auf "gruen"/"gelb"/"rot" und überschreibt dabei
-   alle Klassen. Deshalb ausschließlich über die ID stylen. */
+/* --------------------------------------------------------------- Ergebnis */
+/* script.js setzt className = 'gruen'|'gelb'|'rot' → nur über ID stylen */
 
 #ergebnis {
   padding: 14px 16px;
+  min-height: 128px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   border: 1px solid transparent;
   border-radius: var(--radius-control);
   font-size: var(--fs-body);
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) ease,
+    border-color var(--dur-base) ease,
+    color var(--dur-base) ease;
 }
+#ergebnis[hidden] {
+  display: flex;   /* override hidden so transition runs */
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  visibility: hidden;
+}
+/* @starting-style für Browser, die es unterstützen */
+@starting-style {
+  #ergebnis:not([hidden]) { opacity: 0; transform: translateY(4px); }
+}
+
 #ergebnis p { margin: 0 0 8px; overflow-wrap: break-word; }
 #ergebnis p:last-child { margin-bottom: 0; }
 
@@ -397,7 +483,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
 
 #ergebnis strong { font-weight: 500; }
 
-/* ------------------------------------------------------------------- Diverses */
+/* ---------------------------------------------------------------- Diverses */
 
 .leerstelle {
   margin: 0;
@@ -417,16 +503,25 @@ footer {
 footer p { margin: 0; max-width: 72ch; }
 
 a { color: var(--chart); text-underline-offset: 2px; }
-a:hover { color: var(--text); }
-a:focus-visible { outline: none; box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--chart); border-radius: 3px; } /* taste-skill-ignore: Fokusring */
-
-/* ------------------------------------------------------------------ Responsiv */
-
-@media (max-width: 900px) {
-  .row { grid-template-columns: 1fr; }
+@media (hover: hover) and (pointer: fine) {
+  a:hover { color: var(--text); }
+}
+a:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--chart); /* taste-skill-ignore: Fokusring */
+  border-radius: 3px;
+}
+@media (forced-colors: active) {
+  a:focus-visible { outline-color: Highlight; box-shadow: none; } /* taste-skill-ignore: forced-colors reset, kein Schlagschatten */
 }
 
-@media (max-width: 680px) {
+/* -------------------------------------------------------------- Responsiv */
+
+@media (max-width: 760px) {
+  .panel--rechner__body { grid-template-columns: 1fr; gap: 16px; }
+}
+
+@media (max-width: 640px) {
   main { padding: 20px 16px 48px; }
   .viewerbar__inner { padding: 0 16px; }
   .viewerbar__scope { display: none; }
@@ -441,24 +536,32 @@ a:focus-visible { outline: none; box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--cha
   .segmented label { flex: 1 1 0; }
 }
 
-/* -------------------------------------------------------- Bedienungshilfen */
+/* ---------------------------------------------------------- Bedienungshilfen */
 
+/* Ziel: weniger und sanfter, nicht null */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
+  /* Colour-Transitions bleiben (Bedeutungsträger), Transform/Move weg */
+  #ergebnis,
+  #ergebnis[hidden] { transform: none !important; }
+  .zeitstrahl .eingabe-marke { transition-property: fill, stroke !important; }
+  .rechner__leer { transition: none !important; }
 }
 
 @media (prefers-contrast: more) {
-  :root { --border: #9aa5b4; --control: #78828f; --faint: #434b59; --muted: #434b59; }
+  :root {
+    --border: #9aa5b4; --control: #78828f;
+    --faint: #434b59;  --muted: #434b59;
+  }
 }
 
 @media print {
   body { background: #fff; }
-  .viewerbar { border-bottom: 1px solid var(--text); }
+  .viewerbar { border-bottom: 1px solid var(--text); border-top: none; }
   .panel, .stats { break-inside: avoid; }
   .titlerow__controls, .skip-link { display: none; }
 }
